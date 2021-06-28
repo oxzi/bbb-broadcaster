@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  nginx:
+    image: alfg/nginx-rtmp:latest
+    init: true
+    ports:
+      - "80:80"
+      - "1935:1935"
+  bbb-streamer:
+    depends_on:
+      - nginx
+    build: ./container/BigBlueButton-liveStreaming/
+    init: true
+    shm_size: '2gb'
+    environment:
+      - BBB_STREAM_URL=rtmp://nginx:1935/stream/test
+      - BBB_RESOLUTION=1280x720
+      - BBB_DOWNLOAD_MEETING=true
+      - TZ=Europe/Berlin
+      - DEBUG=1
+    env_file: .env
+    volumes:
+      - /var/videodata:/video
