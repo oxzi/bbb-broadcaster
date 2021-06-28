@@ -6,10 +6,20 @@ services:
     ports:
       - "80:80"
       - "1935:1935"
+
+  # This container fixes the user permissions for the /video mount point used in
+  # bbb-streamer to store downloadable video records.
+  # https://github.com/aau-zid/BigBlueButton-liveStreaming/issues/137
+  bbb-streamer-mount-perm:
+    build: ./container/bbb-streamer-mount-perm/
+    volumes:
+      - /var/videodata:/video
+
   bbb-streamer:
     depends_on:
+      - bbb-streamer-mount-perm
       - nginx
-    build: ./container/BigBlueButton-liveStreaming/
+    build: ./container/bbb-streamer/
     init: true
     shm_size: '2gb'
     environment:
