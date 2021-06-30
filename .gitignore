@@ -1,2 +1,3 @@
 /.env
 /container/nginx-hls-prometheus-exporter/nginx-hls-prometheus-exporter
+/container/nginx-rtmp-prometheus-exporter/nginx-rtmp-prometheus-exporter

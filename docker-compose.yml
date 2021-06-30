@@ -13,6 +13,7 @@ services:
       # - ./overlay/nginx/nginx.conf:/etc/nginx/nginx.conf.template
       - "${NGINX_CONF}:/etc/nginx/nginx.conf.template"
 
+  # Prometheus Exporter to count HLS viewers, nginx_hls_viewer.
   nginx-hls-prometheus-exporter:
     depends_on:
       - nginx
@@ -21,6 +22,14 @@ services:
       - "9101:9101"
     volumes:
       - nginx-logs:/var/log/nginx
+
+  # Prometheus Exporter to count RTMP viewers, nginx_rtmp_viewer.
+  nginx-rtmp-prometheus-exporter:
+    depends_on:
+      - nginx
+    build: ./container/nginx-rtmp-prometheus-exporter/
+    ports:
+      - "9102:9102"
 
   # BBB Live Streaming connects to the remote BBB session, starts a recording
   # and streams to Nginx via RTMP.
