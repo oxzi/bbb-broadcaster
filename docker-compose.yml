@@ -1,20 +1,29 @@
 version: "3.9"
+
 services:
+  # Nginx container with RTMP support which is exposed to the internet.
   nginx:
     image: alfg/nginx-rtmp:latest
     init: true
     ports:
       - "80:80"
       - "1935:1935"
-
-  # This container fixes the user permissions for the /video mount point used in
-  # bbb-streamer to store downloadable video records.
-  # https://github.com/aau-zid/BigBlueButton-liveStreaming/issues/137
-  bbb-streamer-mount-perm:
-    build: ./container/bbb-streamer-mount-perm/
     volumes:
-      - /var/videodata:/video
+      - nginx-logs:/var/log/nginx
+      # - ./overlay/nginx/nginx.conf:/etc/nginx/nginx.conf.template
+      - "${NGINX_CONF}:/etc/nginx/nginx.conf.template"
 
+  nginx-hls-prometheus-exporter:
+    depends_on:
+      - nginx
+    build: ./container/nginx-hls-prometheus-exporter/
+    ports:
+      - "9101:9101"
+    volumes:
+      - nginx-logs:/var/log/nginx
+
+  # BBB Live Streaming connects to the remote BBB session, starts a recording
+  # and streams to Nginx via RTMP.
   bbb-streamer:
     depends_on:
       - bbb-streamer-mount-perm
@@ -30,4 +39,16 @@ services:
       - DEBUG=1
     env_file: .env
     volumes:
-      - /var/videodata:/video
+      - "${VIDEO_MNT}:/video"
+
+  # This container fixes the user permissions for the /video mount point used in
+  # bbb-streamer to store downloadable video records.
+  # https://github.com/aau-zid/BigBlueButton-liveStreaming/issues/137
+  bbb-streamer-mount-perm:
+    build: ./container/bbb-streamer-mount-perm/
+    volumes:
+      - "${VIDEO_MNT}:/video"
+
+volumes:
+  # Shared nginx logs between Nginx and the HLS Prometheus exporter.
+  nginx-logs:

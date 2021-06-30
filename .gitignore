@@ -1,1 +1,2 @@
-.env
+/.env
+/container/nginx-hls-prometheus-exporter/nginx-hls-prometheus-exporter
