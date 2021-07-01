@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>[hsmr] Sofaecke</title>
+
+    <script src="/inc/hls.min.js"></script>
+
+    <style>
+      @font-face {
+        font-family: 'Varela Round';
+        src: url('/inc/VarelaRound-Regular.woff') format('woff');
+      }
+
+      body {
+        font-family: 'Varela Round', sans-serif;
+      }
+
+      .container {
+        width: 70%;
+        margin: 0 auto;
+      }
+
+      .header img {
+        float: left;
+        height: 50px;
+      }
+
+      .header h1 {
+        position: relative;
+        top: 10px;
+        left: 25px;
+      }
+
+      .video-wrapper {
+        padding-top: 10px;
+        margin: 0 auto;
+      }
+
+      .video-wrapper video {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .footer {
+        position: fixed;
+        left: 0px;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+        color: grey;
+      }
+
+      .footer a {
+        color: grey;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="/inc/logo.svg">
+        <h1>Sofaecke</h1>
+      </div>
+
+      <div class="video-wrapper">
+        <video id="video" controls></video>
+      </div>
+
+      <div class="footer">
+        <a href="https://hsmr.cc/">[hsmr] Hackspace Marburg</a> |
+        <a href="https://hsmr.cc/Main/Impressum">Imprint</a> |
+        <a href="https://github.com/oxzi/bbb-broadcaster">BBB Broadcaster</a>
+      </div>
+    </div>
+
+    <script>
+    var url = '/live/bbb.m3u8';
+    if (Hls.isSupported()) {
+      var video = document.getElementById('video');
+      var hls = new Hls();
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+        hls.loadSource(url);
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+          video.play();
+        });
+      });
+    }
+    </script>
+  </body>
+</html>

@@ -7,11 +7,11 @@ services:
     init: true
     ports:
       - "80:80"
-      - "1935:1935"
     volumes:
       - nginx_logs:/var/log/nginx
-      # - ./overlay/nginx/nginx.conf:/etc/nginx/nginx.conf.template
-      - "${NGINX_CONF}:/etc/nginx/nginx.conf.template"
+      - ./overlay/nginx/nginx.conf:/etc/nginx/nginx.conf.template
+      - ./overlay/nginx/player.html:/www/static/player.html
+      - ./overlay/nginx/inc:/www/static/inc
 
   # Prometheus Exporter to count HLS viewers, nginx_hls_viewer.
   nginx_hls_prometheus_exporter:
@@ -51,11 +51,8 @@ services:
     init: true
     shm_size: '2gb'
     environment:
-      - BBB_STREAM_URL=rtmp://nginx:1935/stream/test
-      - BBB_RESOLUTION=1280x720
+      - BBB_STREAM_URL=rtmp://nginx:1935/stream/bbb
       - BBB_DOWNLOAD_MEETING=true
-      - TZ=Europe/Berlin
-      - DEBUG=1
     env_file: .env
     volumes:
       - "${VIDEO_MNT}:/video"
