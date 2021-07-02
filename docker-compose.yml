@@ -1,17 +1,47 @@
 version: "3.9"
 
 services:
-  # Nginx container with RTMP support which is exposed to the internet.
+  # Traefik to handle Let's Encrypt, because certbot isn't fun.
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--providers.docker"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "${LETSENCRYPT_MNT}:/letsencrypt"
+
+  # Nginx container with RTMP support and HLS re-encoding.
   nginx:
     image: alfg/nginx-rtmp:latest
     init: true
-    ports:
-      - "80:80"
     volumes:
       - nginx_logs:/var/log/nginx
       - ./overlay/nginx/nginx.conf:/etc/nginx/nginx.conf.template
       - ./overlay/nginx/player.html:/www/static/player.html
       - ./overlay/nginx/inc:/www/static/inc
+    labels:
+      # Forward HTTP to HTTPS
+      - "traefik.http.middlewares.nginx-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.nginx.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.nginx.entryPoints=web"
+      - "traefik.http.routers.nginx.middlewares=nginx-https"
+
+      # Serve nginx via HTTPS
+      - "traefik.http.services.nginx-ssl.loadbalancer.server.port=80"
+      - "traefik.http.routers.nginx-ssl.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.nginx-ssl.entryPoints=websecure"
+      - "traefik.http.routers.nginx-ssl.tls=true"
+      - "traefik.http.routers.nginx-ssl.tls.certresolver=myresolver"
 
   # Prometheus Exporter to count HLS viewers, nginx_hls_viewer.
   nginx_hls_prometheus_exporter:
