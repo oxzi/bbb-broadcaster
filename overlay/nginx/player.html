@@ -23,15 +23,21 @@
         margin: 0 auto;
       }
 
+      @media only screen and (max-width: 768px) {
+        .container {
+          width: 90%;
+        }
+      }
+
       .header img {
         float: left;
-        height: 50px;
+        height: 3.5em;
+        margin: 1em 1em 1em 0;
       }
 
       .header h1 {
-        position: relative;
-        top: 10px;
-        left: 25px;
+        float: right;
+        font-size: 1.5em;
       }
 
       .video-wrapper {
@@ -48,7 +54,7 @@
       .footer {
         position: fixed;
         left: 0px;
-        bottom: 10px;
+        bottom: 1em;
         width: 100%;
         text-align: center;
         color: grey;
