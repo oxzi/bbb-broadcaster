@@ -3,6 +3,10 @@
 Containerized setup to stream and record a BigBlueButton meeting to the web.
 This includes recording, converting, a web server with valid TLS and monitoring.
 
+![Streaming](contrib/sofaecke01a.jpg)
+
+![Grafana Dashboard](contrib/sofaecke01b.jpg)
+
 
 ## Install
 
