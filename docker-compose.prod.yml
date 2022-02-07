@@ -1,0 +1,24 @@
+services:
+  traefik:
+    command:
+      - "--providers.docker"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+
+  nginx:
+    labels:
+      # Forward HTTP to HTTPS
+      - "traefik.http.middlewares.nginx-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.nginx.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.nginx.entryPoints=web"
+      - "traefik.http.routers.nginx.middlewares=nginx-https"
+
+      # Serve nginx via HTTPS
+      - "traefik.http.services.nginx-ssl.loadbalancer.server.port=80"
+      - "traefik.http.routers.nginx-ssl.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.nginx-ssl.entryPoints=websecure"
+      - "traefik.http.routers.nginx-ssl.tls=true"
+      - "traefik.http.routers.nginx-ssl.tls.certresolver=myresolver"

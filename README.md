@@ -26,7 +26,10 @@ cp .env{.template,}
 vim .env
 
 # Go for a test drive
-docker-compose up --build
+docker-compose -f docker-compose.yml - docker-compose.dev.yml up --build
+
+# Go live with valid HTTPS
+docker-compose -f docker-compose.yml - docker-compose.prod.yml up --build
 ```
 
 
